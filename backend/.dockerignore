@@ -1,0 +1,54 @@
+# Docker ignore — keeps build context small and avoids leaking secrets
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# Secrets — NEVER include in Docker image
+.env
+.env.*
+!.env.example
+
+# Development / test artefacts
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+coverage.xml
+tests/
+
+# Logs and uploads (use named volumes instead)
+logs/
+uploads/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+
+# Docker files themselves (not needed inside the image)
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Documentation
+README.md
+*.md
