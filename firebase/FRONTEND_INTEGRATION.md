@@ -32,10 +32,10 @@ NEXT_PUBLIC_FIREBASE_APP_ID=1:123456789:web:abc123def456
 Create `frontend/lib/firebase.ts`:
 
 ```typescript
-import { initializeApp } from 'firebase/app';
-import { getAuth, connectAuthEmulator } from 'firebase/auth';
-import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
-import { getStorage, connectStorageEmulator } from 'firebase/storage';
+import { initializeApp } from "firebase/app";
+import { getAuth, connectAuthEmulator } from "firebase/auth";
+import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
+import { getStorage, connectStorageEmulator } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -55,12 +55,14 @@ export const db = getFirestore(app);
 export const storage = getStorage(app);
 
 // Connect to emulators in development
-if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
-  if (window.location.hostname === 'localhost') {
+if (process.env.NODE_ENV === "development" && typeof window !== "undefined") {
+  if (window.location.hostname === "localhost") {
     try {
-      connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
-      connectFirestoreEmulator(db, 'localhost', 8080);
-      connectStorageEmulator(storage, 'localhost', 9199);
+      connectAuthEmulator(auth, "http://localhost:9099", {
+        disableWarnings: true,
+      });
+      connectFirestoreEmulator(db, "localhost", 8080);
+      connectStorageEmulator(storage, "localhost", 9199);
     } catch (e) {
       // Emulator already connected
     }
@@ -127,38 +129,41 @@ export function useAuth() {
 Create `frontend/lib/firebase-api.ts`:
 
 ```typescript
-import { functions } from 'firebase/app';
-import { httpsCallable, connectFunctionsEmulator } from 'firebase/functions';
-import { getAuth } from 'firebase/auth';
-import { db } from './firebase';
+import { functions } from "firebase/app";
+import { httpsCallable, connectFunctionsEmulator } from "firebase/functions";
+import { getAuth } from "firebase/auth";
+import { db } from "./firebase";
 
 const auth = getAuth();
 
 // Initialize functions reference
-const functionsRegion = 'us-central1';
-const functions = httpsCallable(app, 'api', { region: functionsRegion });
+const functionsRegion = "us-central1";
+const functions = httpsCallable(app, "api", { region: functionsRegion });
 
 // Connect to emulator in development
-if (process.env.NODE_ENV === 'development') {
-  connectFunctionsEmulator(functions, 'localhost', 5001);
+if (process.env.NODE_ENV === "development") {
+  connectFunctionsEmulator(functions, "localhost", 5001);
 }
 
 // API Functions
 
 export async function callSolarForecast(data: SolarForecastInput) {
   const idToken = await auth.currentUser?.getIdToken();
-  
-  const response = await fetch('http://localhost:5001/solar-ai-prod/us-central1/api/solar-forecast', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${idToken}`,
-      'Content-Type': 'application/json',
+
+  const response = await fetch(
+    "http://localhost:5001/solar-ai-prod/us-central1/api/solar-forecast",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${idToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
     },
-    body: JSON.stringify(data)
-  });
+  );
 
   if (!response.ok) {
-    throw new Error('Solar forecast failed');
+    throw new Error("Solar forecast failed");
   }
 
   return response.json();
@@ -166,18 +171,21 @@ export async function callSolarForecast(data: SolarForecastInput) {
 
 export async function callRoofAnalysis(imageUrl: string, projectId: string) {
   const idToken = await auth.currentUser?.getIdToken();
-  
-  const response = await fetch('http://localhost:5001/solar-ai-prod/us-central1/api/roof-analysis', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${idToken}`,
-      'Content-Type': 'application/json',
+
+  const response = await fetch(
+    "http://localhost:5001/solar-ai-prod/us-central1/api/roof-analysis",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${idToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ image_url: imageUrl, project_id: projectId }),
     },
-    body: JSON.stringify({ image_url: imageUrl, project_id: projectId })
-  });
+  );
 
   if (!response.ok) {
-    throw new Error('Roof analysis failed');
+    throw new Error("Roof analysis failed");
   }
 
   return response.json();
@@ -185,18 +193,21 @@ export async function callRoofAnalysis(imageUrl: string, projectId: string) {
 
 export async function callSavingsPrediction(data: SavingsInput) {
   const idToken = await auth.currentUser?.getIdToken();
-  
-  const response = await fetch('http://localhost:5001/solar-ai-prod/us-central1/api/savings-prediction', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${idToken}`,
-      'Content-Type': 'application/json',
+
+  const response = await fetch(
+    "http://localhost:5001/solar-ai-prod/us-central1/api/savings-prediction",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${idToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
     },
-    body: JSON.stringify(data)
-  });
+  );
 
   if (!response.ok) {
-    throw new Error('Savings prediction failed');
+    throw new Error("Savings prediction failed");
   }
 
   return response.json();
@@ -208,7 +219,11 @@ export async function callSavingsPrediction(data: SavingsInput) {
 Update `frontend/lib/api.ts` to use Firebase:
 
 ```typescript
-import { callSolarForecast, callRoofAnalysis, callSavingsPrediction } from './firebase-api';
+import {
+  callSolarForecast,
+  callRoofAnalysis,
+  callSavingsPrediction,
+} from "./firebase-api";
 
 export async function getSolarForecast(payload: SolarForecastInput) {
   return callSolarForecast(payload);
@@ -221,7 +236,7 @@ export async function analyzeRoof(file: File) {
   const imageUrl = await getDownloadURL(storageRef);
 
   // Call Cloud Function
-  return callRoofAnalysis(imageUrl, 'project-id');
+  return callRoofAnalysis(imageUrl, "project-id");
 }
 
 export async function getSavingsPrediction(payload: SavingsInput) {
@@ -234,69 +249,80 @@ export async function getSavingsPrediction(payload: SavingsInput) {
 Example queries for Firestore:
 
 ```typescript
-import { query, where, orderBy, limit, getDocs } from 'firebase/firestore';
-import { db } from './firebase';
+import { query, where, orderBy, limit, getDocs } from "firebase/firestore";
+import { db } from "./firebase";
 
 // Get user's predictions
 export async function getUserPredictions(uid: string) {
   const q = query(
-    collection(db, 'predictions'),
-    where('uid', '==', uid),
-    orderBy('created_at', 'desc'),
-    limit(10)
+    collection(db, "predictions"),
+    where("uid", "==", uid),
+    orderBy("created_at", "desc"),
+    limit(10),
   );
 
   const snapshot = await getDocs(q);
-  return snapshot.docs.map(doc => ({
+  return snapshot.docs.map((doc) => ({
     id: doc.id,
-    ...doc.data()
+    ...doc.data(),
   }));
 }
 
 // Get user's projects
 export async function getUserProjects(uid: string) {
   const q = query(
-    collection(db, 'projects'),
-    where('uid', '==', uid),
-    orderBy('updated_at', 'desc')
+    collection(db, "projects"),
+    where("uid", "==", uid),
+    orderBy("updated_at", "desc"),
   );
 
   const snapshot = await getDocs(q);
-  return snapshot.docs.map(doc => ({
+  return snapshot.docs.map((doc) => ({
     id: doc.id,
-    ...doc.data()
+    ...doc.data(),
   }));
 }
 
 // Real-time subscription
-export function subscribeToProject(projectId: string, callback: (data: any) => void) {
-  return onSnapshot(doc(db, 'projects', projectId), callback);
+export function subscribeToProject(
+  projectId: string,
+  callback: (data: any) => void,
+) {
+  return onSnapshot(doc(db, "projects", projectId), callback);
 }
 ```
 
 ## File Upload to Storage
 
 ```typescript
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { storage } from './firebase';
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { storage } from "./firebase";
 
-export async function uploadRoofImage(userId: string, file: File, onProgress: (progress: number) => void) {
-  const storageRef = ref(storage, `roof_analysis/${userId}/${Date.now()}-${file.name}`);
-  
+export async function uploadRoofImage(
+  userId: string,
+  file: File,
+  onProgress: (progress: number) => void,
+) {
+  const storageRef = ref(
+    storage,
+    `roof_analysis/${userId}/${Date.now()}-${file.name}`,
+  );
+
   const uploadTask = uploadBytesResumable(storageRef, file);
 
   return new Promise((resolve, reject) => {
     uploadTask.on(
-      'state_changed',
+      "state_changed",
       (snapshot) => {
-        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        const progress =
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
         onProgress(progress);
       },
       (error) => reject(error),
       async () => {
         const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
         resolve(downloadUrl);
-      }
+      },
     );
   });
 }
@@ -307,22 +333,22 @@ export async function uploadRoofImage(userId: string, file: File, onProgress: (p
 ```typescript
 export function handleFirebaseError(error: any): string {
   switch (error.code) {
-    case 'auth/user-not-found':
-      return 'User not found. Please sign up first.';
-    case 'auth/wrong-password':
-      return 'Incorrect password.';
-    case 'auth/email-already-in-use':
-      return 'Email already registered.';
-    case 'auth/weak-password':
-      return 'Password must be at least 6 characters.';
-    case 'permission-denied':
-      return 'You do not have permission to access this resource.';
-    case 'not-found':
-      return 'The requested resource was not found.';
-    case 'deadline-exceeded':
-      return 'Request timed out. Please try again.';
+    case "auth/user-not-found":
+      return "User not found. Please sign up first.";
+    case "auth/wrong-password":
+      return "Incorrect password.";
+    case "auth/email-already-in-use":
+      return "Email already registered.";
+    case "auth/weak-password":
+      return "Password must be at least 6 characters.";
+    case "permission-denied":
+      return "You do not have permission to access this resource.";
+    case "not-found":
+      return "The requested resource was not found.";
+    case "deadline-exceeded":
+      return "Request timed out. Please try again.";
     default:
-      return error.message || 'An error occurred. Please try again.';
+      return error.message || "An error occurred. Please try again.";
   }
 }
 ```
@@ -388,6 +414,7 @@ firebase emulators:start
 ```
 
 This runs:
+
 - Firestore: http://localhost:8080
 - Functions: http://localhost:5001
 - Auth: http://localhost:9099

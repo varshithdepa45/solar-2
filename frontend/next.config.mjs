@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: "export",
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -9,14 +10,14 @@ const nextConfig = {
   async rewrites() {
     const backendBase =
       process.env.NEXT_PUBLIC_API_URL?.replace("/api/v1", "") ||
-      "http://localhost:8000"
+      "http://localhost:8000";
     return [
       {
         source: "/api/:path*",
         destination: `${backendBase}/api/:path*`,
       },
-    ]
+    ];
   },
-}
+};
 
-export default nextConfig
+export default nextConfig;
