@@ -3,6 +3,7 @@
 **AI-powered solar energy forecasting, savings prediction, and roof detection system.**
 
 [![GitHub](https://img.shields.io/badge/GitHub-solar--2-blue?logo=github)](https://github.com/varshithdepa45/solar-2)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-success?logo=github)](https://varshithdepa45.github.io/solar-2)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 [![Status](https://img.shields.io/badge/Status-Production--Ready-success)]()
 
@@ -150,6 +151,20 @@ solar-2/
 ├── VERIFICATION_REPORT.md
 └── README.md
 ```
+
+---
+
+## 🌐 Live Demo
+
+**Try the app now:** https://varshithdepa45.github.io/solar-2
+
+No installation required! Test features:
+
+- 🔐 Create account (email/password or Google)
+- ⚡ Get solar forecast for any location
+- 🏠 Upload roof image for analysis
+- 💰 View 25-year financial projections
+- 📊 Real-time dashboard with predictions
 
 ---
 
