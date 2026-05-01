@@ -313,6 +313,485 @@ exports.forecast = functions.https.onCall(async (data, context) => {
 
 ---
 
+## 🔥 Complete Firebase Connection Guide
+
+### Step 1: Install Firebase CLI
+
+```bash
+# Install globally
+npm install -g firebase-tools
+
+# Verify installation
+firebase --version
+
+# Login to your Google account
+firebase login
+
+# Follow the browser popup to authenticate
+```
+
+### Step 2: Create Firebase Project
+
+**Option A: Web Console (Recommended)**
+
+1. Go to [Firebase Console](https://console.firebase.google.com)
+2. Click "Add Project"
+3. Enter project name: `solar-ai-prod`
+4. Enable Google Analytics (optional)
+5. Click "Create Project"
+6. Wait for setup to complete
+
+**Option B: CLI**
+
+```bash
+firebase projects:create solar-ai-prod --display-name "Solar AI Platform"
+```
+
+### Step 3: Initialize Firebase in Your Project
+
+```bash
+cd /path/to/solar-2
+
+# Run interactive setup
+firebase init
+
+# When prompted, select these features:
+# ✓ Firestore Database
+# ✓ Cloud Functions
+# ✓ Hosting
+# ✓ Cloud Storage
+# ✓ Emulators (for local development)
+
+# Choose project: solar-ai-prod
+
+# When asked about Firestore location: us-central1
+# When asked about language for functions: JavaScript
+# When asked about overwriting files: No (keep existing)
+```
+
+### Step 4: Configure Firebase Credentials
+
+#### For Frontend (Next.js)
+
+**frontend/.env.local:**
+
+```env
+# Get these from Firebase Console → Project Settings → Your apps
+NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyB0g... (Your API Key)
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=solar-ai-prod.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=solar-ai-prod
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=solar-ai-prod.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=123456789... (Sender ID)
+NEXT_PUBLIC_FIREBASE_APP_ID=1:123456789:web:abc... (App ID)
+```
+
+**How to Find These Values:**
+
+1. Go to [Firebase Console](https://console.firebase.google.com)
+2. Select project: `solar-ai-prod`
+3. Click "Project Settings" (gear icon)
+4. Go to "Your apps" section
+5. Click your web app (or create one with `</>` icon)
+6. Copy all values from the config object
+
+**Example Config Object:**
+
+```javascript
+const firebaseConfig = {
+  apiKey: "AIzaSyB0gvXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  authDomain: "solar-ai-prod.firebaseapp.com",
+  projectId: "solar-ai-prod",
+  storageBucket: "solar-ai-prod.appspot.com",
+  messagingSenderId: "123456789012",
+  appId: "1:123456789012:web:abcdef1234567890abcd",
+};
+```
+
+#### For Backend (Cloud Functions)
+
+**firebase/functions/.env.local:**
+
+```env
+FIREBASE_PROJECT_ID=solar-ai-prod
+FIREBASE_AUTH_DOMAIN=solar-ai-prod.firebaseapp.com
+FIREBASE_STORAGE_BUCKET=solar-ai-prod.appspot.com
+```
+
+### Step 5: Install Frontend Dependencies
+
+```bash
+cd frontend
+
+# Install Firebase SDK
+npm install firebase @react-oauth/google
+
+# Install Firebase Admin SDK (for backend)
+cd ../firebase/functions
+npm install firebase-admin firebase-functions
+```
+
+### Step 6: Create Firestore Database
+
+```bash
+# Create Firestore database
+firebase firestore:databases:create --region us-central1 --database-id=solar-ai-prod
+
+# Or create via Firebase Console:
+# 1. Go to Firestore Database
+# 2. Click "Create Database"
+# 3. Choose: us-central1
+# 4. Start in Production Mode (we have security rules)
+```
+
+### Step 7: Enable Firebase Services
+
+Go to [Firebase Console](https://console.firebase.google.com) → solar-ai-prod project:
+
+**Enable These:**
+
+1. **Authentication**
+   - Click "Authentication"
+   - Go to "Sign-in method"
+   - Enable: Email/Password, Google, GitHub (optional)
+
+2. **Firestore Database**
+   - Click "Firestore Database"
+   - Click "Create Database"
+   - Mode: Production
+   - Location: us-central1
+
+3. **Cloud Storage**
+   - Click "Storage"
+   - Click "Get Started"
+   - Choose Production Rules
+   - Default Location: us-central1
+
+4. **Cloud Functions**
+   - Already enabled with `firebase init`
+
+### Step 8: Deploy Firebase Rules
+
+```bash
+cd /path/to/solar-2
+
+# Deploy Firestore security rules
+firebase deploy --only firestore:rules
+
+# Deploy Storage security rules
+firebase deploy --only storage
+
+# Deploy Firestore indexes
+firebase deploy --only firestore:indexes
+```
+
+### Step 9: Deploy Cloud Functions
+
+```bash
+cd firebase/functions
+
+# Install dependencies (if not already done)
+npm install
+
+# Go back to root and deploy
+cd ../..
+
+# Deploy only functions
+firebase deploy --only functions
+
+# View logs
+firebase functions:log --limit 50
+```
+
+### Step 10: Configure Frontend to Use Firebase
+
+**Create `frontend/lib/firebase.ts`:**
+
+```typescript
+import { initializeApp } from "firebase/app";
+import { getAuth, connectAuthEmulator } from "firebase/auth";
+import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
+import { getStorage, connectStorageEmulator } from "firebase/storage";
+import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
+
+const firebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+
+// Initialize services
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+export const storage = getStorage(app);
+export const functions = getFunctions(app, "us-central1");
+
+// Connect to emulators in development (localhost)
+if (process.env.NODE_ENV === "development" && typeof window !== "undefined") {
+  if (window.location.hostname === "localhost") {
+    try {
+      connectAuthEmulator(auth, "http://localhost:9099", {
+        disableWarnings: true,
+      });
+      connectFirestoreEmulator(db, "localhost", 8080);
+      connectStorageEmulator(storage, "localhost", 9199);
+      connectFunctionsEmulator(functions, "localhost", 5001);
+    } catch (e) {
+      // Emulator already connected
+    }
+  }
+}
+
+export default app;
+```
+
+### Step 11: Create Auth Context (React)
+
+**Create `frontend/lib/auth-context.tsx`:**
+
+```typescript
+'use client';
+
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { User, onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth } from './firebase';
+
+interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  signup: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const login = async (email: string, password: string) => {
+    await signInWithEmailAndPassword(auth, email, password);
+  };
+
+  const signup = async (email: string, password: string) => {
+    await createUserWithEmailAndPassword(auth, email, password);
+  };
+
+  const logout = async () => {
+    await signOut(auth);
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, loading, login, signup, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within AuthProvider');
+  }
+  return context;
+}
+```
+
+**Add to `frontend/app/layout.tsx`:**
+
+```typescript
+import { AuthProvider } from '@/lib/auth-context';
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html>
+      <body>
+        <AuthProvider>
+          {children}
+        </AuthProvider>
+      </body>
+    </html>
+  );
+}
+```
+
+### Step 12: Test Connection Locally
+
+```bash
+# Start Firebase emulators
+firebase emulators:start
+
+# In another terminal, start frontend
+cd frontend
+npm run dev
+
+# In another terminal, start backend (if using FastAPI)
+cd backend
+python run.py --reload
+```
+
+**Emulator URLs:**
+
+- Firestore: http://localhost:8080
+- Functions: http://localhost:5001
+- Auth: http://localhost:9099
+- Storage: http://localhost:9199
+- Frontend: http://localhost:3000
+
+### Step 13: Deploy to Production
+
+```bash
+# Build frontend
+cd frontend
+npm run build
+
+# Deploy everything to Firebase
+cd ..
+firebase deploy
+
+# This deploys:
+# ✓ Cloud Functions
+# ✓ Firestore rules
+# ✓ Storage rules
+# ✓ Hosting (if configured)
+```
+
+**Your site will be live at:**
+
+- Hosting: `https://solar-ai-prod.web.app`
+- API: Cloud Functions endpoints
+
+### Step 14: Monitor Firebase
+
+Access your Firebase Console:
+
+**[Firebase Console Dashboard](https://console.firebase.google.com)**
+
+Monitor:
+
+- ✅ Firestore usage (reads/writes/deletes)
+- ✅ Cloud Function execution time
+- ✅ Storage bandwidth
+- ✅ Authentication events
+- ✅ Error logs
+
+---
+
+## 📚 Firebase API Examples
+
+### Login
+
+```typescript
+import { useAuth } from '@/lib/auth-context';
+
+export function LoginPage() {
+  const { login } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = async () => {
+    try {
+      await login(email, password);
+      // Redirect to dashboard
+    } catch (error) {
+      console.error('Login failed:', error);
+    }
+  };
+
+  return (
+    <div>
+      <input
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="Email"
+      />
+      <input
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        placeholder="Password"
+      />
+      <button onClick={handleLogin}>Login</button>
+    </div>
+  );
+}
+```
+
+### Call Cloud Function
+
+```typescript
+import { httpsCallable } from "firebase/functions";
+import { functions } from "@/lib/firebase";
+
+const callSolarForecast = httpsCallable(functions, "solarForecast");
+
+async function predictSolar(data) {
+  try {
+    const result = await callSolarForecast(data);
+    return result.data;
+  } catch (error) {
+    console.error("Forecast failed:", error);
+    throw error;
+  }
+}
+```
+
+### Firestore Query
+
+```typescript
+import { collection, query, where, orderBy, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+
+async function getUserPredictions(userId: string) {
+  const q = query(
+    collection(db, "predictions"),
+    where("uid", "==", userId),
+    orderBy("created_at", "desc"),
+  );
+
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+}
+```
+
+### Real-time Subscription
+
+```typescript
+import { doc, onSnapshot } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+
+function subscribeToProject(projectId: string) {
+  return onSnapshot(doc(db, "projects", projectId), (snapshot) => {
+    console.log("Project updated:", snapshot.data());
+  });
+}
+```
+
+---
+
 ## 📡 API Endpoints
 
 ### Health Checks
@@ -363,23 +842,160 @@ See [VERIFICATION_REPORT.md](VERIFICATION_REPORT.md) for complete API documentat
 
 ---
 
-## 🐳 Deployment
+---
 
-### Local Docker
+## 🔗 GitHub Pages (.io) Domain
+
+Deploy your Solar AI frontend to a free `.io` domain using GitHub Pages.
+
+### Setup GitHub Pages
+
+#### 1. Configure Repository
+
+```bash
+# Go to your GitHub repository settings
+# https://github.com/varshithdepa45/solar-2/settings/pages
+
+# Under "Source", select:
+# ✓ Deploy from a branch
+# ✓ Branch: main
+# ✓ Folder: /frontend (if frontend is in a subfolder)
+#          or / (if using root-level build)
+```
+
+#### 2. Update Next.js for Static Export
+
+**frontend/next.config.mjs:**
+
+```javascript
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  output: "export", // Enable static export
+  distDir: "out", // Output directory for GitHub Pages
+  basePath: "", // Root domain (no subfolder needed)
+
+  // Disable image optimization for static export
+  images: {
+    unoptimized: true,
+  },
+};
+
+export default nextConfig;
+```
+
+#### 3. Build and Deploy
+
+```bash
+cd frontend
+
+# Build static site
+npm run build
+
+# This creates the 'out/' directory
+
+# Push to GitHub
+cd ..
+git add frontend/out/
+git commit -m "Deploy frontend to GitHub Pages"
+git push origin main
+```
+
+#### 4. Access Your Site
+
+Your site will be live at:
+
+```
+https://varshithdepa45.github.io/solar-2/
+```
+
+Or with a custom domain (optional):
+
+```bash
+# Create CNAME file in frontend/public/
+echo "solar.yourdomain.com" > frontend/public/CNAME
+
+# Add custom domain in GitHub settings
+# https://github.com/varshithdepa45/solar-2/settings/pages
+```
+
+#### 5. GitHub Actions Workflow (Automatic Deployment)
+
+**`.github/workflows/deploy.yml`:**
+
+```yaml
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: cd frontend && npm install
+
+      - name: Build
+        run: cd frontend && npm run build
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "frontend/out"
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+```
+
+Save this file and GitHub will automatically deploy whenever you push to main!
+
+---
+
+## 🌐 Deployment Options
+
+### Option 1: Local Docker
 
 ```bash
 docker compose up -d
-docker compose logs -f
+docker compose logs -f api
 docker compose down -v
 ```
 
-### Firebase Hosting + Functions
+### Option 2: GitHub Pages (Frontend Only - FREE ⭐)
 
 ```bash
-firebase deploy --only hosting,functions
+# Perfect for static site deployment
+cd frontend
+npm run build
+# Push 'out/' folder to GitHub
+# Access at: https://varshithdepa45.github.io/solar-2/
 ```
 
-### Cloud Run / Kubernetes
+### Option 3: Firebase Hosting + Cloud Functions (RECOMMENDED)
+
+```bash
+firebase deploy --only hosting,functions,firestore:rules
+```
+
+**Live at:** `https://solar-ai-prod.web.app`
+
+### Option 4: Cloud Run / Kubernetes (Enterprise)
 
 ```bash
 docker build -t solar-ai-backend .
