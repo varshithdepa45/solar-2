@@ -1,0 +1,112 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ========== Authentication & Authorization ==========
+    
+    // Get user UID from auth context
+    function isUserAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isUserAdmin() {
+      return isUserAuthenticated() && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    function userOwnsDocument() {
+      return isUserAuthenticated() && 
+             resource.data.uid == request.auth.uid;
+    }
+    
+    // ========== Users Collection ==========
+    
+    match /users/{uid} {
+      allow read, write: if request.auth.uid == uid;
+      
+      allow read: if isUserAdmin();
+      
+      match /subscription/{document=**} {
+        allow read, write: if request.auth.uid == uid;
+      }
+    }
+    
+    // ========== Projects Collection ==========
+    
+    match /projects/{projectId} {
+      // Project owner has full access
+      allow read, write: if isUserAuthenticated() && 
+                           resource.data.uid == request.auth.uid;
+      
+      // Admins can read all projects
+      allow read: if isUserAdmin();
+      
+      // Subcollections
+      match /analysis_history/{analysisId} {
+        allow read, write: if isUserAuthenticated() && 
+                             get(/databases/$(database)/documents/projects/$(projectId)).data.uid == request.auth.uid;
+      }
+      
+      match /collaborators/{collaboratorId} {
+        allow read: if isUserAuthenticated() && 
+                       (resource.data.uid == request.auth.uid || 
+                        get(/databases/$(database)/documents/projects/$(projectId)).data.uid == request.auth.uid);
+      }
+    }
+    
+    // ========== Predictions Collection ==========
+    
+    match /predictions/{predictionId} {
+      // Users can only read their own predictions
+      allow read: if isUserAuthenticated() && 
+                     resource.data.uid == request.auth.uid;
+      
+      // Users can create predictions
+      allow create: if isUserAuthenticated() && 
+                       request.resource.data.uid == request.auth.uid &&
+                       request.resource.data.created_at == request.time &&
+                       request.resource.data.endpoint in ['solar_forecast', 'roof_detection', 'savings'];
+      
+      // Users can update their own predictions
+      allow update: if isUserAuthenticated() && 
+                       resource.data.uid == request.auth.uid;
+      
+      // Admins can read all predictions
+      allow read: if isUserAdmin();
+    }
+    
+    // ========== Roof Analysis Collection ==========
+    
+    match /roof_analysis/{analysisId} {
+      // Users can only read their own analyses
+      allow read: if isUserAuthenticated() && 
+                     resource.data.uid == request.auth.uid;
+      
+      // Users can create roof analyses
+      allow create: if isUserAuthenticated() && 
+                       request.resource.data.uid == request.auth.uid &&
+                       request.resource.data.created_at == request.time;
+      
+      // Admins can read all analyses
+      allow read: if isUserAdmin();
+      
+      // Images stored in subcollection
+      match /images/{imageId} {
+        allow read: if isUserAuthenticated() && 
+                       get(/databases/$(database)/documents/roof_analysis/$(analysisId)).data.uid == request.auth.uid;
+      }
+    }
+    
+    // ========== System Collection (Read-only) ==========
+    
+    match /system/{document=**} {
+      allow read: if true;  // Public read for system config
+      allow write: if isUserAdmin();  // Only admins can write
+    }
+    
+    // ========== Deny everything else ==========
+    
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
