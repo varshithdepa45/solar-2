@@ -1,0 +1,9 @@
+1:"$Sreact.fragment"
+2:I[47257,["/solar-2/_next/static/chunks/01xlw8hd842-c.js","/solar-2/_next/static/chunks/0w2x~-3f4_5s8.js"],"ClientPageRoot"]
+3:I[78928,["/solar-2/_next/static/chunks/01xlw8hd842-c.js","/solar-2/_next/static/chunks/0w2x~-3f4_5s8.js","/solar-2/_next/static/chunks/0~dzhguyp1yhp.js","/solar-2/_next/static/chunks/0n1kzb6nyecg4.js","/solar-2/_next/static/chunks/14s~vb4~pma9i.js"],"default"]
+6:I[97367,["/solar-2/_next/static/chunks/01xlw8hd842-c.js","/solar-2/_next/static/chunks/0w2x~-3f4_5s8.js"],"OutletBoundary"]
+7:"$Sreact.suspense"
+0:{"rsc":["$","$1","c",{"children":[["$","$L2",null,{"Component":"$3","serverProvidedParams":{"searchParams":{},"params":{},"promises":["$@4","$@5"]}}],[["$","script","script-0",{"src":"/solar-2/_next/static/chunks/0~dzhguyp1yhp.js","async":true}],["$","script","script-1",{"src":"/solar-2/_next/static/chunks/0n1kzb6nyecg4.js","async":true}],["$","script","script-2",{"src":"/solar-2/_next/static/chunks/14s~vb4~pma9i.js","async":true}]],["$","$L6",null,{"children":["$","$7",null,{"name":"Next.MetadataOutlet","children":"$@8"}]}]]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"GiDuXl4MseIeQi6PVn7xU"}
+4:{}
+5:"$0:rsc:props:children:0:props:serverProvidedParams:params"
+8:null
