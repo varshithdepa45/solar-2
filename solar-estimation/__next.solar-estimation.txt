@@ -2,4 +2,4 @@
 2:I[39756,["/solar-2/_next/static/chunks/01xlw8hd842-c.js","/solar-2/_next/static/chunks/0w2x~-3f4_5s8.js"],"default"]
 3:I[37457,["/solar-2/_next/static/chunks/01xlw8hd842-c.js","/solar-2/_next/static/chunks/0w2x~-3f4_5s8.js"],"default"]
 4:[]
-0:{"rsc":["$","$1","c",{"children":[null,["$","$L2",null,{"parallelRouterKey":"children","template":["$","$L3",null,{}]}]]}],"isPartial":false,"staleTime":300,"varyParams":"$W4","buildId":"GiDuXl4MseIeQi6PVn7xU"}
+0:{"rsc":["$","$1","c",{"children":[null,["$","$L2",null,{"parallelRouterKey":"children","template":["$","$L3",null,{}]}]]}],"isPartial":false,"staleTime":300,"varyParams":"$W4","buildId":"DtQg3vFoLVpo_MPxB527D"}

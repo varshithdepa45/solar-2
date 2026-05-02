@@ -1,6 +1,6 @@
 :HL["/solar-2/_next/static/chunks/14ctw7~oznum7.css","style"]
-:HL["/solar-2/_next/static/chunks/074hh9wa7fwf8.css","style"]
+:HL["/solar-2/_next/static/chunks/10a7_fhnzg5kd.css","style"]
 :HL["/solar-2/_next/static/media/0c89a48fa5027cee-s.p.0rd3rjvnnhw7n.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
 :HL["/solar-2/_next/static/media/8d05cfa5faa8406c-s.p.0kbulo~7o8gic.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
 :HL["/solar-2/_next/static/media/dc0d9adbac686440-s.p.0~z396rbj0t4w.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
-0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"solar-estimation","param":null,"prefetchHints":0,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}}}},"staleTime":300,"buildId":"GiDuXl4MseIeQi6PVn7xU"}
+0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"solar-estimation","param":null,"prefetchHints":0,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}}}},"staleTime":300,"buildId":"DtQg3vFoLVpo_MPxB527D"}
