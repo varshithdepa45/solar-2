@@ -156,7 +156,9 @@ solar-2/
 
 ## 🌐 Live Demo
 
-**Try the app now:** https://varshithdepa45.github.io/solar-2
+**Try the app now:**
+- 🌐 [GitHub Pages](https://varshithdepa45.github.io/solar-2)
+- 🔥 [Firebase Hosting](https://solar-ai-prod.web.app)
 
 No installation required! Test features:
 
