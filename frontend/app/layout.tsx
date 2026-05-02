@@ -18,6 +18,9 @@ export const metadata: Metadata = {
   description: 'Harness the power of AI to analyze rooftops, estimate solar potential, and maximize your energy savings.',
   generator: 'v0.app',
   keywords: ['solar energy', 'AI analysis', 'roof detection', 'solar estimation', 'renewable energy'],
+}
+
+export const viewport = {
   themeColor: '#0a0e1a',
 }
 

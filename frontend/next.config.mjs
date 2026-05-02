@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "export",
-  basePath: "/solar-2",
+  basePath: process.env.NEXT_PUBLIC_BASE_PATH || "",
   typescript: {
     ignoreBuildErrors: true,
   },
