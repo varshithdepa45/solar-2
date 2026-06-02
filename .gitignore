@@ -1,0 +1,53 @@
+# Firebase configuration (contains secrets - don't commit)
+.firebaserc
+firebase-debug.log
+
+# Environment variables
+firebase/functions/.env
+firebase/functions/.env.local
+.env.local
+.env.*.local
+
+# Firebase emulator data
+.firebase/
+emulator-data/
+
+# Node modules
+node_modules/
+firebase/functions/node_modules/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build outputs
+/dist
+/build
+/.next
+frontend/out/
+
+# Dependencies
+/backend/.venv
+/backend/venv
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Database
+*.sqlite
+*.db
+
+# Uploads
+uploads/
+logs/

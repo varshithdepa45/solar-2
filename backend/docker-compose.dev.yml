@@ -1,0 +1,47 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Solar AI Platform – Development Docker Compose Override
+# ─────────────────────────────────────────────────────────────────────────────
+# Usage (merges with docker-compose.yml):
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+#
+# Changes vs production:
+#   - Single uvicorn worker with --reload (hot-reload)
+#   - Source code mounted as volume (edit without rebuild)
+#   - Debug logging (text format, not JSON)
+#   - Swagger UI always enabled
+#   - No nginx (connect directly to port 8000)
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+  api:
+    build:
+      target: builder           # use builder image (has compilers for dev extras)
+    command: >
+      uvicorn app.main:app
+        --host 0.0.0.0
+        --port 8000
+        --reload
+        --reload-dir app
+        --log-level debug
+    environment:
+      - ENVIRONMENT=development
+      - LOG_FORMAT=text
+      - LOG_LEVEL=DEBUG
+      - WORKERS=1
+      - DATABASE_URL=postgresql+asyncpg://solar_user:solar_pass@postgres:5432/solar_db
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=dev-insecure-key-do-not-use-in-production
+      - ALLOWED_ORIGINS_STR=http://localhost:3000,http://localhost:8080,http://127.0.0.1:5500
+    volumes:
+      - .:/app          # live code mount for hot-reload
+      - ../trained-models:/models:ro
+
+  # Expose postgres port for local tooling
+  postgres:
+    ports:
+      - "5432:5432"
+
+  # No nginx in dev — connect directly
+  nginx:
+    profiles:
+      - production      # nginx only in prod profile
