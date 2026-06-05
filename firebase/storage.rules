@@ -1,0 +1,91 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // ========== Authentication & Authorization ==========
+    
+    function isUserAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isUserAdmin() {
+      return request.auth.token.admin == true;
+    }
+    
+    function userIsFileOwner() {
+      return request.auth.uid == resource.metadata.userId;
+    }
+    
+    // ========== File Size & Type Validation ==========
+    
+    function isValidImageFile(size, contentType) {
+      return size <= 10 * 1024 * 1024 &&  // 10 MB max
+             contentType in [
+               'image/jpeg',
+               'image/png',
+               'image/webp'
+             ];
+    }
+    
+    function isValidModelFile(size, contentType) {
+      return size <= 500 * 1024 * 1024 &&  // 500 MB max for models
+             contentType in [
+               'application/octet-stream',
+               'application/x-python-pickle'
+             ];
+    }
+    
+    // ========== User Upload Directory ==========
+    
+    match /uploads/users/{uid}/{allPaths=**} {
+      // Users can upload their own files
+      allow write: if request.auth.uid == uid &&
+                      isValidImageFile(request.resource.size, request.resource.contentType);
+      
+      // Users can read their own files
+      allow read: if request.auth.uid == uid;
+      
+      // Users can delete their own files
+      allow delete: if request.auth.uid == uid;
+    }
+    
+    // ========== Roof Analysis Uploads ==========
+    
+    match /roof_analysis/{uid}/{allPaths=**} {
+      // Users can upload to their own directory
+      allow write: if request.auth.uid == uid &&
+                      isValidImageFile(request.resource.size, request.resource.contentType);
+      
+      // Users can read their own files
+      allow read: if request.auth.uid == uid;
+      
+      // Users can delete their own files
+      allow delete: if request.auth.uid == uid;
+    }
+    
+    // ========== Model Files (Admin Only) ==========
+    
+    match /models/{allPaths=**} {
+      // Only admins can upload/delete models
+      allow write, delete: if isUserAdmin();
+      
+      // Anyone can read model metadata (size is public)
+      allow read: if true;
+    }
+    
+    // ========== Public Assets ==========
+    
+    match /public/{allPaths=**} {
+      // Everyone can read public assets
+      allow read: if true;
+      
+      // Only admins can modify public assets
+      allow write, delete: if isUserAdmin();
+    }
+    
+    // ========== Deny everything else ==========
+    
+    match /{allPaths=**} {
+      allow read, write, delete: if false;
+    }
+  }
+}

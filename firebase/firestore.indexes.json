@@ -1,0 +1,29 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "predictions",
+      "queryScope": "Collection",
+      "fields": [
+        { "fieldPath": "uid", "order": "Ascending" },
+        { "fieldPath": "created_at", "order": "Descending" }
+      ]
+    },
+    {
+      "collectionGroup": "analysis_history",
+      "queryScope": "Collection",
+      "fields": [
+        { "fieldPath": "uid", "order": "Ascending" },
+        { "fieldPath": "type", "order": "Ascending" },
+        { "fieldPath": "created_at", "order": "Descending" }
+      ]
+    },
+    {
+      "collectionGroup": "roof_analysis",
+      "queryScope": "Collection",
+      "fields": [
+        { "fieldPath": "uid", "order": "Ascending" },
+        { "fieldPath": "created_at", "order": "Descending" }
+      ]
+    }
+  ]
+}

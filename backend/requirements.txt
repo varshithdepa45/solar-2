@@ -1,0 +1,42 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Solar AI Platform – Python Dependencies
+# ─────────────────────────────────────────────────────────────────────────────
+# Pin to exact minor versions for reproducible production builds.
+# Run:  pip install -r requirements.txt
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Web Framework ─────────────────────────────────────────────────────────────
+fastapi==0.115.0
+uvicorn[standard]==0.30.6          # ASGI server with uvloop + httptools
+python-multipart==0.0.9            # multipart/form-data (file uploads)
+
+# ── Pydantic / Settings ───────────────────────────────────────────────────────
+pydantic==2.9.2
+pydantic-settings==2.5.2
+
+# ── Database (PostgreSQL) ─────────────────────────────────────────────────────
+sqlalchemy==2.0.36
+asyncpg==0.30.0                    # async PostgreSQL driver (0.30+ has Python 3.13 wheel)
+greenlet>=3.0.0                    # required by SQLAlchemy async internals
+alembic==1.13.3                    # database migrations
+
+# ── ML / Data Science ─────────────────────────────────────────────────────────
+numpy>=2.0.0                       # 2.x has Python 3.13 wheels
+scikit-learn>=1.5.2                # Random Forest model
+Pillow>=10.4.0                     # image processing (PIL)
+
+# YOLO – install separately due to size; uncomment when ready:
+ultralytics
+
+# ── Rate Limiting ─────────────────────────────────────────────────────────────
+slowapi==0.1.9                     # fastapi-compatible rate limiter (wraps limits)
+
+# ── Utilities ─────────────────────────────────────────────────────────────────
+python-dotenv==1.0.1               # .env file loading (pydantic-settings handles this)
+
+# ── Optional (production enhancements) ────────────────────────────────────────
+psutil>=6.0.0                    # memory health check (uncomment to enable)
+# redis>=5.0.0                     # Redis-backed distributed rate limiting
+
+# ── Development & Testing ─────────────────────────────────────────────────────
+# Install with:  pip install -r requirements-dev.txt
