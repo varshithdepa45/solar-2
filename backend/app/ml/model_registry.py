@@ -76,12 +76,12 @@ class ModelRegistry:
 def _load_pickle(path: Path, label: str) -> Any:
     """Load a scikit-learn / joblib-style pickle model."""
     if not path.exists():
-        logger.warning("Model file not found – using stub", extra={"path": str(path)})
+        logger.warning(f"Model file not found at {path.resolve()} – using stub")
         return None  # stub: prevents crash when model file is absent in dev
     
     import joblib
     model = joblib.load(str(path))
-    logger.info("Pickle model loaded", extra={"label": label, "path": str(path)})
+    logger.info(f"Pickle model loaded from {path.resolve()}")
     return model
 
 
@@ -91,7 +91,7 @@ def _load_yolo(path: Path) -> Any:
     Falls back to None stub when the library or model file is absent.
     """
     if not path.exists():
-        logger.warning("YOLO model file not found – using stub", extra={"path": str(path)})
+        logger.warning(f"YOLO model file not found at {path.resolve()} – using stub")
         return None
 
     try:
