@@ -82,8 +82,8 @@ class Settings(BaseSettings):
         return [t.strip() for t in self.ALLOWED_IMAGE_TYPES_STR.split(",") if t.strip()]
 
     # ── ML Model paths ─────────────────────────────────────────────────────────
-    # Resolved relative to the repo root (four levels above this file).
-    MODELS_BASE_DIR: Path = Path(__file__).resolve().parent.parent.parent.parent / "trained-models"
+    # Resolved relative to the backend root (three levels above this file).
+    MODELS_BASE_DIR: Path = Path(__file__).resolve().parent.parent.parent / "trained-models"
     SOLAR_FORECAST_MODEL_PATH: Path = MODELS_BASE_DIR / "solar_forecast_model.pkl"
     SAVINGS_MODEL_PATH: Path = MODELS_BASE_DIR / "savings_prediction_model.pkl"
     YOLO_MODEL_PATH: Path = MODELS_BASE_DIR / "prediction_yolo.pt"
