@@ -24,7 +24,7 @@ from app.core.logging import get_logger
 
 logger = get_logger(__name__)
 
-_MODEL_LOAD_TIMEOUT_SECONDS = 20.0
+_MODEL_LOAD_TIMEOUT_SECONDS = 120.0
 
 # ── Type aliases ───────────────────────────────────────────────────────────────
 ModelKey = str
