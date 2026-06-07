@@ -1,0 +1,11 @@
+# Railway Nixpacks build configuration
+# Ensures system libraries needed by asyncpg, Pillow, and ultralytics are available
+
+[phases.setup]
+nixPkgs = ["python311", "gcc", "libffi", "openssl", "zlib", "libjpeg"]
+
+[phases.install]
+cmds = ["pip install -r requirements.txt"]
+
+[start]
+cmd = "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --workers 2"

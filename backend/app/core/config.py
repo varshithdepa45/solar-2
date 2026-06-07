@@ -8,6 +8,7 @@ Uses pydantic-settings so every field is type-safe and validated at startup.
 from functools import lru_cache
 from pathlib import Path
 from typing import List
+import re
 
 from pydantic import AnyHttpUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -24,6 +25,9 @@ class Settings(BaseSettings):
     DEBUG: bool = False
     ENVIRONMENT: str = "production"  # development | staging | production
 
+    # ── Server (Railway injects PORT) ──────────────────────────────────────────
+    PORT: int = 8000
+
     # ── API ────────────────────────────────────────────────────────────────────
     API_V1_PREFIX: str = "/api/v1"
     API_V2_PREFIX: str = "/api/v2"
@@ -32,7 +36,7 @@ class Settings(BaseSettings):
     REQUEST_TIMEOUT_SECONDS: float = 60.0  # HTTP 504 after this many seconds
 
     # ── CORS ───────────────────────────────────────────────────────────────────
-    ALLOWED_ORIGINS_STR: str = "http://localhost:3000,http://localhost:8080"
+    ALLOWED_ORIGINS_STR: str = "http://localhost:3000,http://localhost:8080,https://*.vercel.app"
 
     @property
     def ALLOWED_ORIGINS(self) -> List[str]:
@@ -58,6 +62,14 @@ class Settings(BaseSettings):
     DATABASE_POOL_SIZE: int = 10
     DATABASE_MAX_OVERFLOW: int = 20
     DATABASE_ECHO: bool = False  # set True to log SQL queries (dev only)
+
+    @property
+    def ASYNC_DATABASE_URL(self) -> str:
+        """Auto-convert Railway's postgresql:// to postgresql+asyncpg://."""
+        url = self.DATABASE_URL
+        if url.startswith("postgresql://") and "+asyncpg" not in url:
+            url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
+        return url
 
     # ── File upload ────────────────────────────────────────────────────────────
     UPLOAD_DIR: Path = Path("uploads")

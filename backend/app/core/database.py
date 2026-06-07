@@ -29,12 +29,12 @@ logger = get_logger(__name__)
 
 # ── Engine ─────────────────────────────────────────────────────────────────────
 _engine_kwargs = {"echo": settings.DATABASE_ECHO, "pool_pre_ping": True}
-if "sqlite" not in str(settings.DATABASE_URL):
+if "sqlite" not in settings.ASYNC_DATABASE_URL:
     _engine_kwargs["pool_size"] = settings.DATABASE_POOL_SIZE
     _engine_kwargs["max_overflow"] = settings.DATABASE_MAX_OVERFLOW
     _engine_kwargs["pool_recycle"] = 1800
 
-engine = create_async_engine(str(settings.DATABASE_URL), **_engine_kwargs)
+engine = create_async_engine(settings.ASYNC_DATABASE_URL, **_engine_kwargs)
 
 # ── Session factory ────────────────────────────────────────────────────────────
 AsyncSessionFactory = async_sessionmaker(
