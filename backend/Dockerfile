@@ -59,6 +59,7 @@ COPY --from=builder /install /usr/local
 COPY --chown=solarai:solarai app/ ./app/
 COPY --chown=solarai:solarai alembic/ ./alembic/
 COPY --chown=solarai:solarai alembic.ini .
+COPY --chown=solarai:solarai trained-models/ ./trained-models/
 
 # Create directories owned by the app user
 RUN mkdir -p uploads logs && chown -R solarai:solarai uploads logs
