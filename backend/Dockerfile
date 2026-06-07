@@ -42,9 +42,12 @@ LABEL org.opencontainers.image.description="Production FastAPI backend for solar
 LABEL org.opencontainers.image.version="1.0.0"
 
 # Runtime system libraries only (no compilers)
+# libgl1 and libglib2.0-0 are required by OpenCV (used by ultralytics/YOLOv8)
 RUN apt-get update && apt-get install -y --no-install-recommends \
         libpq5 \
         curl \
+        libgl1 \
+        libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
 # Non-root user for security

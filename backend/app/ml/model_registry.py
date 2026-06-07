@@ -99,9 +99,9 @@ def _load_yolo(path: Path) -> Any:
         model = YOLO(str(path))
         logger.info("YOLOv8 model loaded", extra={"path": str(path)})
         return model
-    except ImportError:
+    except ImportError as exc:
         logger.warning(
-            "ultralytics package not installed – roof detection will use stub responses"
+            f"Failed to import ultralytics or its system dependencies ({exc}) – roof detection will use stub responses"
         )
         return None
 
