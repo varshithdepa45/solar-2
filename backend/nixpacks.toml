@@ -2,7 +2,7 @@
 # Ensures system libraries needed by asyncpg, Pillow, and ultralytics are available
 
 [phases.setup]
-nixPkgs = ["python311", "gcc", "libffi", "openssl", "zlib", "libjpeg"]
+nixPkgs = ["python311", "gcc", "libffi", "openssl", "zlib", "libjpeg", "libGL", "glib"]
 
 [phases.install]
 cmds = ["pip install -r requirements.txt"]
