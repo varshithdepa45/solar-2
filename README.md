@@ -3,7 +3,8 @@
 **AI-powered solar energy forecasting, savings prediction, and roof detection system.**
 
 [![GitHub](https://img.shields.io/badge/GitHub-solar--2-blue?logo=github)](https://github.com/varshithdepa45/solar-2)
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-success?logo=github)](https://varshithdepa45.github.io/solar-2)
+[![Live Demo (Vercel)](https://img.shields.io/badge/Live%20Demo-Vercel-success?logo=vercel)](https://solar-2-lovat.vercel.app)
+[![Backend API (Railway)](https://img.shields.io/badge/API%20Health-Railway-blue?logo=railway)](https://solar-2-production.up.railway.app/api/v1/health)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 [![Status](https://img.shields.io/badge/Status-Production--Ready-success)]()
 
@@ -157,8 +158,10 @@ solar-2/
 ## 🌐 Live Demo
 
 **Try the app now:**
-- 🌐 [GitHub Pages](https://varshithdepa45.github.io/solar-2)
-- 🔥 [Firebase Hosting](https://solar-ai-prod.web.app)
+- 🌐 **Frontend (Vercel)**: [https://solar-2-lovat.vercel.app](https://solar-2-lovat.vercel.app)
+- ⚡ **Backend API (Railway)**: [https://solar-2-production.up.railway.app](https://solar-2-production.up.railway.app)
+- 🌐 **Alternative (GitHub Pages - Static)**: [https://varshithdepa45.github.io/solar-2](https://varshithdepa45.github.io/solar-2)
+- 🔥 **Alternative (Firebase Hosting)**: [https://solar-ai-prod.web.app](https://solar-ai-prod.web.app)
 
 No installation required! Test features:
 
@@ -1012,7 +1015,15 @@ firebase deploy --only hosting,functions,firestore:rules
 
 **Live at:** `https://solar-ai-prod.web.app`
 
-### Option 4: Cloud Run / Kubernetes (Enterprise)
+### Option 4: Vercel + Railway (Active Production Deploy)
+
+- **Frontend**: Automatically deployed on Vercel from the `frontend/` directory.
+  - **Live URL**: [https://solar-2-lovat.vercel.app](https://solar-2-lovat.vercel.app)
+- **Backend API**: Automatically deployed on Railway from the `backend/` directory.
+  - **Live URL**: [https://solar-2-production.up.railway.app](https://solar-2-production.up.railway.app)
+  - **Health Endpoint**: [https://solar-2-production.up.railway.app/api/v1/health](https://solar-2-production.up.railway.app/api/v1/health)
+
+### Option 5: Cloud Run / Kubernetes (Enterprise)
 
 ```bash
 docker build -t solar-ai-backend .
