@@ -60,8 +60,8 @@ export async function getHealthStatus() {
   const res = await fetch(`${API_BASE_URL}/health`, {
     method: "GET",
     headers: { "X-API-Key": API_KEY },
-    // 5 s timeout via AbortController
-    signal: AbortSignal.timeout(5000),
+    // Increased timeout to 15s to handle server cold starts / high latency
+    signal: AbortSignal.timeout(15000),
   });
   return handleResponse<{
     status: string;
@@ -79,7 +79,8 @@ export async function getReadinessStatus() {
   const res = await fetch(`${API_BASE_URL}/health/ready`, {
     method: "GET",
     headers: { "X-API-Key": API_KEY },
-    signal: AbortSignal.timeout(8000),
+    // Increased timeout to 25s as it performs database and disk checks
+    signal: AbortSignal.timeout(25000),
   });
   return handleResponse<{ status: string; checks: Record<string, unknown> }>(res);
 }
