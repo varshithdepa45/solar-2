@@ -1,6 +1,6 @@
 # Frontend Testing Guide
 
-Complete guide for testing Firebase integration with unit tests, integration tests, and end-to-end tests.
+Complete guide for testing the frontend with unit tests, integration tests, and end-to-end tests.
 
 ## Setup
 
@@ -9,7 +9,7 @@ Complete guide for testing Firebase integration with unit tests, integration tes
 ```bash
 cd frontend
 npm install --save-dev vitest @testing-library/react @testing-library/jest-dom @vitest/ui
-npm install --save-dev @firebase/testing firebase-jest-setup
+npm install --save-dev jest @testing-library/react @testing-library/jest-dom
 ```
 
 ### Update `package.json`

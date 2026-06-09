@@ -1,102 +1,93 @@
 "use client";
 
-import React, {
+// ════════════════════════════════════════════════════════════════════════════
+// Firebase Authentication Context
+// ════════════════════════════════════════════════════════════════════════════
+
+import {
   createContext,
   useContext,
   useEffect,
   useState,
-  useCallback,
+  ReactNode,
 } from "react";
-import {
-  onAuthStateChanged,
-  signOut,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signInWithPopup,
-  GoogleAuthProvider,
-  User as FirebaseUser,
-} from "firebase/auth";
+import { User, onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "./firebase";
-import type { AuthContextType } from "./types";
+
+interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  error: Error | null;
+  logout: () => Promise<void>;
+  isAuthenticated: boolean;
+}
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<FirebaseUser | null>(null);
+export interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-    });
+    // Subscribe to auth state changes
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (currentUser) => {
+        try {
+          setUser(currentUser);
+          setError(null);
+        } catch (err) {
+          setError(
+            err instanceof Error ? err : new Error("Unknown auth error"),
+          );
+        } finally {
+          setLoading(false);
+        }
+      },
+      (error) => {
+        setError(error);
+        setLoading(false);
+      },
+    );
 
     return () => unsubscribe();
   }, []);
 
-  const login = useCallback(async (email: string, password: string) => {
+  const logout = async () => {
     try {
-      setError(null);
-      await signInWithEmailAndPassword(auth, email, password);
-    } catch (err: any) {
-      const errorMessage = err.message || "Login failed";
-      setError(errorMessage);
-      throw err;
-    }
-  }, []);
-
-  const signup = useCallback(async (email: string, password: string) => {
-    try {
-      setError(null);
-      await createUserWithEmailAndPassword(auth, email, password);
-    } catch (err: any) {
-      const errorMessage = err.message || "Signup failed";
-      setError(errorMessage);
-      throw err;
-    }
-  }, []);
-
-  const loginWithGoogle = useCallback(async () => {
-    try {
-      setError(null);
-      const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
-    } catch (err: any) {
-      const errorMessage = err.message || "Google login failed";
-      setError(errorMessage);
-      throw err;
-    }
-  }, []);
-
-  const logout = useCallback(async () => {
-    try {
-      setError(null);
+      setLoading(true);
       await signOut(auth);
-    } catch (err: any) {
-      const errorMessage = err.message || "Logout failed";
-      setError(errorMessage);
+      setUser(null);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error("Logout failed"));
       throw err;
+    } finally {
+      setLoading(false);
     }
-  }, []);
+  };
 
   const value: AuthContextType = {
     user,
     loading,
-    login,
-    signup,
-    loginWithGoogle,
-    logout,
     error,
+    logout,
+    isAuthenticated: !!user,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
+};
 
-export function useAuth() {
+// Custom hook to use auth context
+export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
-}
+};

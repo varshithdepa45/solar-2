@@ -1,6 +1,6 @@
 # Frontend API Reference
 
-Complete reference for all Firebase services and Cloud Functions available in the frontend.
+Complete reference for all API services available in the frontend.
 
 ## Table of Contents
 
@@ -324,7 +324,7 @@ await deleteProject("project-id-123");
 Get solar generation forecast for a location.
 
 ```typescript
-import { predictSolarForecast } from '@/lib/firebase-functions';
+import { predictSolarForecast } from '@/lib/api';
 
 const forecast = await predictSolarForecast({
   latitude: 37.7749,
@@ -371,7 +371,7 @@ interface SolarForecastOutput {
 Analyze roof image for solar suitability.
 
 ```typescript
-import { analyzeRoof } from '@/lib/firebase-functions';
+import { analyzeRoof } from '@/lib/api';
 
 const analysis = await analyzeRoof({
   imageUrl: 'https://storage.googleapis.com/...',
@@ -428,7 +428,7 @@ interface RoofAnalysisOutput {
 Calculate 25-year financial projection.
 
 ```typescript
-import { predictSavings } from '@/lib/firebase-functions';
+import { predictSavings } from '@/lib/api';
 
 const savings = await predictSavings({
   systemSize: 8,      // kW
@@ -484,7 +484,7 @@ interface SavingsPredictionOutput {
 Check API health and service status.
 
 ```typescript
-import { checkHealth } from '@/lib/firebase-functions';
+import { checkHealth } from '@/lib/api';
 
 const health = await checkHealth();
 
@@ -523,7 +523,7 @@ const health = await checkHealth();
 Upload roof image to Cloud Storage.
 
 ```typescript
-import { uploadRoofImage } from "@/lib/firebase-storage";
+import { uploadRoofImage } from "@/lib/api";
 
 const url = await uploadRoofImage(user.uid, file, (progress) => {
   console.log(`${progress.progress}% uploaded`);
@@ -560,7 +560,7 @@ interface UploadProgress {
 Upload project-scoped image to Cloud Storage.
 
 ```typescript
-import { uploadProjectImage } from "@/lib/firebase-storage";
+import { uploadProjectImage } from "@/lib/api";
 
 const url = await uploadProjectImage(user.uid, projectId, file, (progress) => {
   progressBar.style.width = `${progress.progress}%`;
@@ -581,7 +581,7 @@ const url = await uploadProjectImage(user.uid, projectId, file, (progress) => {
 Delete file from Cloud Storage.
 
 ```typescript
-import { deleteFile } from "@/lib/firebase-storage";
+import { deleteFile } from "@/lib/api";
 
 await deleteFile("roof_analysis/user-123/image.jpg");
 ```

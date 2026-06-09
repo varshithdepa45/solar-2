@@ -1,84 +1,83 @@
-import { httpsCallable } from "firebase/functions";
-import { functions } from "./firebase";
+"use client";
 
-// Solar Forecast Function
-export const callSolarForecast = httpsCallable(functions, "solarForecast");
+// ════════════════════════════════════════════════════════════════════════════
+// Firebase Cloud Functions Client
+// ════════════════════════════════════════════════════════════════════════════
 
-export async function predictSolarForecast(data: {
+import { httpsCallable, HttpsCallableResult } from "firebase/functions";
+import { app } from "./firebase";
+import { getFunctions } from "firebase/functions";
+
+const functions = getFunctions(app);
+
+// Type-safe callable function wrapper
+export interface CallableOptions {
+  timeout?: number;
+}
+
+export const callFunction = async <T = any, R = any>(
+  functionName: string,
+  data?: T,
+  options?: CallableOptions,
+): Promise<R> => {
+  try {
+    const callable = httpsCallable<T, R>(functions, functionName, {
+      timeout: options?.timeout || 60000, // 60s default timeout
+    });
+    const result: HttpsCallableResult<R> = await callable(data);
+    return result.data;
+  } catch (error: any) {
+    if (error.code === "functions/invalid-argument") {
+      throw new Error(`Invalid argument for ${functionName}: ${error.message}`);
+    }
+    if (error.code === "functions/permission-denied") {
+      throw new Error(`Permission denied for ${functionName}`);
+    }
+    if (error.code === "functions/internal") {
+      throw new Error(`Internal server error in ${functionName}`);
+    }
+    throw new Error(`Failed to call ${functionName}: ${error.message}`);
+  }
+};
+
+// Specific function helpers
+export const predictSolar = async (input: {
   latitude: number;
   longitude: number;
-  month: number;
-  day_of_year: number;
-  hour: number;
-  temperature_celsius: number;
-  cloud_cover_pct?: number;
-  humidity_pct?: number;
-  wind_speed_ms?: number;
-  ghi: number;
-  panel_capacity_kw: number;
-  panel_efficiency_pct?: number;
-  panel_tilt_degrees?: number;
-  panel_azimuth_degrees?: number;
-}) {
-  try {
-    const response = await callSolarForecast(data);
-    return response.data;
-  } catch (error: any) {
-    console.error("Solar forecast error:", error);
-    throw new Error(error.message || "Failed to generate solar forecast");
+  roofArea: number;
+  sunExposure: number;
+}): Promise<{ prediction: number; confidence: number }> => {
+  return callFunction("predictSolar", input);
+};
+
+export const calculateSavings = async (input: {
+  systemSize: number;
+  location: string;
+  electricityRate: number;
+}): Promise<{ annualSavings: number; paybackPeriod: number }> => {
+  return callFunction("calculateSavings", input);
+};
+
+export const analyzeRoof = async (input: {
+  imageUrl: string;
+  location: string;
+}): Promise<{ suitability: number; recommendations: string[] }> => {
+  return callFunction("analyzeRoof", input);
+};
+
+// Generic batch operation
+export const batchCall = async <T = any>(
+  functionName: string,
+  items: T[],
+  batchSize: number = 10,
+): Promise<any[]> => {
+  const results: any[] = [];
+  for (let i = 0; i < items.length; i += batchSize) {
+    const batch = items.slice(i, i + batchSize);
+    const batchResults = await Promise.all(
+      batch.map((item) => callFunction(functionName, item)),
+    );
+    results.push(...batchResults);
   }
-}
-
-// Roof Analysis Function
-export const callRoofAnalysis = httpsCallable(functions, "roofAnalysis");
-
-export async function analyzeRoof(data: {
-  image_url: string;
-  project_id: string;
-}) {
-  try {
-    const response = await callRoofAnalysis(data);
-    return response.data;
-  } catch (error: any) {
-    console.error("Roof analysis error:", error);
-    throw new Error(error.message || "Failed to analyze roof");
-  }
-}
-
-// Savings Prediction Function
-export const callSavingsPrediction = httpsCallable(
-  functions,
-  "savingsPrediction",
-);
-
-export async function predictSavings(data: {
-  panel_capacity_kw: number;
-  annual_solar_kwh: number;
-  electricity_rate_per_kwh: number;
-  export_rate_per_kwh?: number;
-  installation_cost: number;
-  annual_tariff_increase_pct?: number;
-  panel_degradation_pct?: number;
-  system_lifetime_years?: number;
-}) {
-  try {
-    const response = await callSavingsPrediction(data);
-    return response.data;
-  } catch (error: any) {
-    console.error("Savings prediction error:", error);
-    throw new Error(error.message || "Failed to predict savings");
-  }
-}
-
-// Health Check Function
-export const callHealthCheck = httpsCallable(functions, "healthCheck");
-
-export async function checkHealth() {
-  try {
-    const response = await callHealthCheck({});
-    return response.data;
-  } catch (error: any) {
-    console.error("Health check error:", error);
-    throw new Error(error.message || "Failed to check health");
-  }
-}
+  return results;
+};

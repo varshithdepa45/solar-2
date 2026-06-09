@@ -81,7 +81,11 @@ class Settings(BaseSettings):
     LOG_FORMAT: str = "json"  # "json" | "text"
     LOG_FILE: Path = Path("logs/solar_api.log")
 
-    # ── Firebase (Backend - Service Account) ───────────────────────────────────
+    # ── External services (future microservice expansion) ──────────────────────
+    WEATHER_API_KEY: str = ""
+    WEATHER_API_BASE_URL: str = "https://api.openweathermap.org/data/2.5"
+
+    # ── Firebase Configuration (Backend Admin SDK) ─────────────────────────────
     FIREBASE_PROJECT_ID: str = ""
     FIREBASE_PRIVATE_KEY_ID: str = ""
     FIREBASE_PRIVATE_KEY: str = ""
@@ -91,10 +95,6 @@ class Settings(BaseSettings):
     FIREBASE_TOKEN_URI: str = "https://oauth2.googleapis.com/token"
     FIREBASE_AUTH_PROVIDER_X509_CERT_URL: str = "https://www.googleapis.com/oauth2/v1/certs"
     FIREBASE_CLIENT_X509_CERT_URL: str = ""
-
-    # ── External services (future microservice expansion) ──────────────────────
-    WEATHER_API_KEY: str = ""
-    WEATHER_API_BASE_URL: str = "https://api.openweathermap.org/data/2.5"
 
     model_config = SettingsConfigDict(
         env_file=".env",

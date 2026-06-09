@@ -8,11 +8,11 @@ Based on your project analysis, here's an optimal deployment strategy.
 
 **Tech Stack:**
 
-- **Backend:** FastAPI (Python 3.11) + PostgreSQL + Redis + Firebase
-- **Frontend:** Next.js 16 + React + TypeScript + Firebase Auth
+- **Backend:** FastAPI (Python 3.11) + PostgreSQL + Redis
+- **Frontend:** Next.js 16 + React + TypeScript
 - **ML Models:** YOLO (roof detection) + Random Forest (forecasting)
-- **Storage:** Firebase Storage (configured)
-- **Auth:** Firebase Authentication + JWT
+- **Storage:** PostgreSQL with file upload support
+- **Auth:** JWT based authentication
 
 **Key Components:**
 
@@ -118,8 +118,6 @@ DATABASE_URL=postgresql+asyncpg://user:pass@railway-db:5432/solar_db
 REDIS_URL=redis://:password@redis-host:6379/0
 ALLOWED_ORIGINS_STR=https://your-frontend.vercel.app
 SECRET_KEY=generate-strong-random-key-here
-FIREBASE_PROJECT_ID=your-firebase-project
-FIREBASE_PRIVATE_KEY=...
 # Add other Firebase creds
 EOF
 ```
@@ -166,8 +164,6 @@ npm i -g vercel
 vercel --prod
 
 # Set environment variables in Vercel dashboard:
-# - NEXT_PUBLIC_FIREBASE_API_KEY
-# - NEXT_PUBLIC_FIREBASE_PROJECT_ID
 # - NEXT_PUBLIC_API_BASE_URL=https://railway-backend.railway.app/api/v1
 ```
 
@@ -183,7 +179,6 @@ Update `frontend/.env.local`:
 
 ```
 NEXT_PUBLIC_API_BASE_URL=https://your-backend-railway.railway.app/api/v1
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
 ```
 
 ---
@@ -261,11 +256,6 @@ RATE_LIMIT_ML=30/minute
 REDIS_URL=redis://:password@redis-host:6379/0
 
 # Firebase (Backend Admin)
-FIREBASE_PROJECT_ID=your-project
-FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----"
-FIREBASE_CLIENT_EMAIL=firebase-adminsdk@...
-FIREBASE_CLIENT_ID=...
-FIREBASE_CLIENT_X509_CERT_URL=...
 
 # ML Models (keep in repo or use model registry)
 MODELS_BASE_DIR=/app/trained-models
@@ -275,12 +265,6 @@ LOG_LEVEL=INFO
 LOG_FORMAT=json
 
 # === FRONTEND ===
-NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSy...
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=project.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=project.appspot.com
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=...
-NEXT_PUBLIC_FIREBASE_APP_ID=...
 
 # API Endpoint
 NEXT_PUBLIC_API_BASE_URL=https://your-api.railway.app/api/v1

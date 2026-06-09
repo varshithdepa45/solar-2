@@ -28,11 +28,12 @@ Pillow>=10.4.0                     # image processing (PIL)
 # YOLO – install separately due to size; uncomment when ready:
 ultralytics
 
+# ── Firebase ─────────────────────────────────────────────────────────────────
+firebase-admin>=6.5.0              # Firebase Admin SDK for Firestore, Auth, Storage
+
 # ── Rate Limiting ─────────────────────────────────────────────────────────────
 slowapi==0.1.9                     # fastapi-compatible rate limiter (wraps limits)
 
-# ── Firebase (Backend Admin SDK) ──────────────────────────────────────────────
-firebase-admin>=6.5.0              # Firebase Admin SDK (Firestore, Auth, Storage)
 
 # ── Utilities ─────────────────────────────────────────────────────────────────
 python-dotenv==1.0.1               # .env file loading (pydantic-settings handles this)

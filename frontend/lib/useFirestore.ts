@@ -1,247 +1,173 @@
-import { useEffect, useState } from "react";
+"use client";
+
+// ════════════════════════════════════════════════════════════════════════════
+// Firestore Hook for Real-Time Data
+// ════════════════════════════════════════════════════════════════════════════
+
+import { useEffect, useState, useCallback } from "react";
 import {
   collection,
   query,
   where,
-  orderBy,
-  limit,
+  onSnapshot,
   getDocs,
-  addDoc,
+  setDoc,
   updateDoc,
   deleteDoc,
   doc,
-  onSnapshot,
   Query,
-  serverTimestamp,
+  QueryConstraint,
+  DocumentReference,
 } from "firebase/firestore";
-import { db } from "./firebase";
-import { useAuth } from "./auth-context";
+import { firestore } from "./firebase";
 
-// Hook for fetching predictions
-export function usePredictions() {
-  const { user } = useAuth();
-  const [predictions, setPredictions] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!user) {
-      setLoading(false);
-      return;
-    }
-
-    const q = query(
-      collection(db, "predictions"),
-      where("uid", "==", user.uid),
-      orderBy("created_at", "desc"),
-      limit(10),
-    );
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      try {
-        const data = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setPredictions(data);
-        setLoading(false);
-      } catch (err: any) {
-        setError(err.message);
-        setLoading(false);
-      }
-    });
-
-    return () => unsubscribe();
-  }, [user]);
-
-  return { predictions, loading, error };
+interface UseFirestoreOptions {
+  constraints?: QueryConstraint[];
 }
 
-// Hook for fetching projects
-export function useProjects() {
-  const { user } = useAuth();
-  const [projects, setProjects] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!user) {
-      setLoading(false);
-      return;
-    }
-
-    const q = query(
-      collection(db, "projects"),
-      where("uid", "==", user.uid),
-      orderBy("updated_at", "desc"),
-    );
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      try {
-        const data = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setProjects(data);
-        setLoading(false);
-      } catch (err: any) {
-        setError(err.message);
-        setLoading(false);
-      }
-    });
-
-    return () => unsubscribe();
-  }, [user]);
-
-  return { projects, loading, error };
+interface UseFirestoreResult<T> {
+  data: T[];
+  loading: boolean;
+  error: Error | null;
 }
 
-// Hook for a single project
-export function useProject(projectId: string | null) {
-  const [project, setProject] = useState<any>(null);
+export const useFirestore = <T extends { id?: string }>(
+  collectionName: string,
+  options?: UseFirestoreOptions,
+): UseFirestoreResult<T> => {
+  const [data, setData] = useState<T[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    if (!projectId) {
+    try {
+      const collectionRef = collection(firestore, collectionName);
+      const q: Query = options?.constraints
+        ? query(collectionRef, ...options.constraints)
+        : collectionRef;
+
+      const unsubscribe = onSnapshot(
+        q,
+        (snapshot) => {
+          const items: T[] = [];
+          snapshot.forEach((doc) => {
+            items.push({ ...doc.data(), id: doc.id } as T);
+          });
+          setData(items);
+          setError(null);
+          setLoading(false);
+        },
+        (error) => {
+          setError(error);
+          setLoading(false);
+        },
+      );
+
+      return () => unsubscribe();
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error("Firestore error"));
+      setLoading(false);
+    }
+  }, [collectionName, JSON.stringify(options?.constraints || [])]);
+
+  return { data, loading, error };
+};
+
+// Single document hook
+export const useFirestoreDoc = <T extends { id?: string }>(
+  collectionName: string,
+  docId: string | null,
+): UseFirestoreResult<T> & { refetch: () => Promise<void> } => {
+  const [data, setData] = useState<T[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  const refetch = useCallback(async () => {
+    if (!docId) return;
+    try {
+      setLoading(true);
+      const docRef = doc(firestore, collectionName, docId);
+      const docSnap = await getDocs(
+        query(
+          collection(firestore, collectionName),
+          where("__name__", "==", docId),
+        ),
+      );
+      const items: T[] = [];
+      docSnap.forEach((d) => {
+        items.push({ ...d.data(), id: d.id } as T);
+      });
+      setData(items);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error("Firestore error"));
+    } finally {
+      setLoading(false);
+    }
+  }, [collectionName, docId]);
+
+  useEffect(() => {
+    if (!docId) {
       setLoading(false);
       return;
     }
 
-    const unsubscribe = onSnapshot(
-      doc(db, "projects", projectId),
-      (snapshot) => {
-        try {
-          if (snapshot.exists()) {
-            setProject({ id: snapshot.id, ...snapshot.data() });
+    try {
+      const docRef = doc(firestore, collectionName, docId);
+      const unsubscribe = onSnapshot(
+        docRef,
+        (docSnap) => {
+          if (docSnap.exists()) {
+            setData([{ ...docSnap.data(), id: docSnap.id } as T]);
           } else {
-            setProject(null);
+            setData([]);
           }
+          setError(null);
           setLoading(false);
-        } catch (err: any) {
-          setError(err.message);
+        },
+        (error) => {
+          setError(error);
           setLoading(false);
-        }
-      },
-    );
+        },
+      );
 
-    return () => unsubscribe();
-  }, [projectId]);
-
-  return { project, loading, error };
-}
-
-// Hook for creating predictions
-export function useCreatePrediction() {
-  const { user } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const createPrediction = async (data: any) => {
-    if (!user) throw new Error("User not authenticated");
-
-    try {
-      setLoading(true);
-      setError(null);
-
-      const docRef = await addDoc(collection(db, "predictions"), {
-        uid: user.uid,
-        ...data,
-        created_at: serverTimestamp(),
-      });
-
+      return () => unsubscribe();
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error("Firestore error"));
       setLoading(false);
-      return docRef.id;
-    } catch (err: any) {
-      setError(err.message);
-      setLoading(false);
-      throw err;
     }
-  };
+  }, [collectionName, docId]);
 
-  return { createPrediction, loading, error };
-}
+  return { data, loading, error, refetch };
+};
 
-// Hook for creating projects
-export function useCreateProject() {
-  const { user } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+// Write operations
+export const addDocument = async <T extends Record<string, any>>(
+  collectionName: string,
+  data: T,
+  docId?: string,
+): Promise<DocumentReference> => {
+  const docRef = docId
+    ? doc(firestore, collectionName, docId)
+    : doc(collection(firestore, collectionName));
 
-  const createProject = async (data: any) => {
-    if (!user) throw new Error("User not authenticated");
+  await setDoc(docRef, data);
+  return docRef;
+};
 
-    try {
-      setLoading(true);
-      setError(null);
+export const updateDocument = async <T extends Record<string, any>>(
+  collectionName: string,
+  docId: string,
+  data: Partial<T>,
+): Promise<void> => {
+  const docRef = doc(firestore, collectionName, docId);
+  await updateDoc(docRef, data);
+};
 
-      const docRef = await addDoc(collection(db, "projects"), {
-        uid: user.uid,
-        status: "draft",
-        ...data,
-        created_at: serverTimestamp(),
-        updated_at: serverTimestamp(),
-      });
-
-      setLoading(false);
-      return docRef.id;
-    } catch (err: any) {
-      setError(err.message);
-      setLoading(false);
-      throw err;
-    }
-  };
-
-  return { createProject, loading, error };
-}
-
-// Hook for updating project
-export function useUpdateProject(projectId: string | null) {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const updateProject = async (data: any) => {
-    if (!projectId) throw new Error("Project ID required");
-
-    try {
-      setLoading(true);
-      setError(null);
-
-      await updateDoc(doc(db, "projects", projectId), {
-        ...data,
-        updated_at: serverTimestamp(),
-      });
-
-      setLoading(false);
-    } catch (err: any) {
-      setError(err.message);
-      setLoading(false);
-      throw err;
-    }
-  };
-
-  return { updateProject, loading, error };
-}
-
-// Hook for deleting project
-export function useDeleteProject() {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const deleteProject = async (projectId: string) => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      await deleteDoc(doc(db, "projects", projectId));
-
-      setLoading(false);
-    } catch (err: any) {
-      setError(err.message);
-      setLoading(false);
-      throw err;
-    }
-  };
-
-  return { deleteProject, loading, error };
-}
+export const deleteDocument = async (
+  collectionName: string,
+  docId: string,
+): Promise<void> => {
+  const docRef = doc(firestore, collectionName, docId);
+  await deleteDoc(docRef);
+};

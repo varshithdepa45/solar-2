@@ -1,41 +1,40 @@
-import { initializeApp } from "firebase/app";
-import { getAuth, connectAuthEmulator } from "firebase/auth";
-import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
-import { getStorage, connectStorageEmulator } from "firebase/storage";
-import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
+// ════════════════════════════════════════════════════════════════════════════
+// Frontend Firebase Configuration
+// ════════════════════════════════════════════════════════════════════════════
 
+import { initializeApp } from "firebase/app";
+import { getAuth, Auth } from "firebase/auth";
+import { getFirestore, Firestore } from "firebase/firestore";
+import { getStorage, FirebaseStorage } from "firebase/storage";
+import { getAnalytics, Analytics } from "firebase/analytics";
+
+// Firebase configuration from environment variables
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "",
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "",
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "",
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "",
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "",
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Get Firebase services
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-export const storage = getStorage(app);
-export const functions = getFunctions(app, "us-central1");
+// Initialize Firebase services
+const auth: Auth = getAuth(app);
+const firestore: Firestore = getFirestore(app);
+const storage: FirebaseStorage = getStorage(app);
 
-// Connect to emulators in development
-if (process.env.NODE_ENV === "development" && typeof window !== "undefined") {
-  if (window.location.hostname === "localhost") {
-    try {
-      connectAuthEmulator(auth, "http://localhost:9099", {
-        disableWarnings: true,
-      });
-      connectFirestoreEmulator(db, "localhost", 8080);
-      connectStorageEmulator(storage, "localhost", 9199);
-      connectFunctionsEmulator(functions, "localhost", 5001);
-    } catch (e) {
-      // Emulator already connected or not running
-    }
-  }
+// Initialize Analytics (only in browser)
+let analytics: Analytics | null = null;
+if (typeof window !== "undefined") {
+  analytics = getAnalytics(app);
 }
 
-export default app;
+// Configure Auth settings
+auth.useDeviceLanguage();
+
+// Export services for use in the app
+export { app, auth, firestore, storage, analytics };
+export type { Auth, Firestore, FirebaseStorage };

@@ -6,61 +6,12 @@ This guide covers deploying the Solar-2 project to various platforms.
 
 | Platform             | Setup  | Cost        | Best For                  |
 | -------------------- | ------ | ----------- | ------------------------- |
-| **Firebase Hosting** | 5 min  | Free tier   | Production app            |
 | **GitHub Pages**     | 10 min | Free        | Static sites, .io domains |
 | **Vercel**           | 5 min  | Free tier   | Next.js apps              |
 | **Cloud Run**        | 20 min | Pay-per-use | Backend API               |
 
 ---
 
-## Option 1: Firebase Hosting (Recommended)
-
-### Requirements
-
-- Firebase project created
-- Firebase CLI installed
-- Built frontend (Next.js static export)
-
-### Step 1: Configure Next.js for Static Export
-
-In `frontend/next.config.mjs`:
-
-```javascript
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  output: "export",
-  images: {
-    unoptimized: true,
-  },
-};
-
-export default nextConfig;
-```
-
-### Step 2: Build Frontend
-
-```bash
-cd frontend
-npm run build
-```
-
-This creates `frontend/out` directory with static files.
-
-### Step 3: Deploy to Firebase Hosting
-
-```bash
-firebase deploy --only hosting
-```
-
-Your app will be live at: `https://YOUR_PROJECT_ID.web.app`
-
-### Step 4: Set Up Custom Domain (Optional)
-
-1. Go to Firebase Console → Hosting → Add custom domain
-2. Follow DNS verification steps
-3. Wait for SSL certificate (24-48 hours)
-
----
 
 ## Option 2: GitHub Pages with .io Domain
 

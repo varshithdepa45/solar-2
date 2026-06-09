@@ -1,4 +1,3 @@
-# Firebase Frontend Integration - Quick Start
 
 ## 5-Minute Setup
 
@@ -6,7 +5,6 @@
 
 ```bash
 cd frontend
-npm install firebase @react-oauth/google
 ```
 
 ### 2. Create Environment File (1 min)
@@ -17,7 +15,6 @@ Copy `.env.example` to `.env.local`:
 cp .env.example .env.local
 ```
 
-Get Firebase credentials from [Firebase Console](https://console.firebase.google.com):
 
 - Project Settings → Your apps → Copy Web config
 - Paste into `.env.local`
@@ -124,7 +121,6 @@ import {
   analyzeRoof,
   predictSavings,
   checkHealth,
-} from "@/lib/firebase-functions";
 
 const forecast = await predictSolarForecast({ latitude, longitude, month });
 const roof = await analyzeRoof({ imageUrl, latitude, longitude });
@@ -140,7 +136,6 @@ import {
   uploadProjectImage,
   deleteFile,
   getStorageRef,
-} from "@/lib/firebase-storage";
 
 // Upload with progress
 const url = await uploadRoofImage(userId, file, (progress) => {
@@ -182,7 +177,6 @@ await deleteFile("path/to/file");
 ### Start Emulators
 
 ```bash
-firebase emulators:start
 ```
 
 Frontend automatically connects when running on `localhost:3000`.
@@ -202,29 +196,12 @@ await signup("test@example.com", "password123");
 
 ## Deployment
 
-### Deploy to Firebase Hosting
-
-```bash
-# Build
-npm run build
-
-# Deploy
-firebase deploy --only hosting
-```
-
-Your app will be live at: `https://YOUR_PROJECT_ID.web.app`
-
----
 
 ## Troubleshooting
 
 | Problem                        | Solution                                                  |
 | ------------------------------ | --------------------------------------------------------- |
-| "Firebase app not initialized" | Ensure AuthProvider wraps your app in layout.tsx          |
-| "Permission denied"            | Check Firestore security rules (firebase/firestore.rules) |
-| "Module not found"             | Run `npm install firebase @react-oauth/google`            |
 | Changes not syncing            | Check you're using the hook (usePredictions, useProjects) |
-| Emulator not connecting        | Ensure `firebase emulators:start` is running on localhost |
 
 ---
 
@@ -233,22 +210,6 @@ Your app will be live at: `https://YOUR_PROJECT_ID.web.app`
 ```
 frontend/
 ├── lib/
-│   ├── firebase.ts                 # Firebase initialization
-│   ├── auth-context.tsx            # Auth provider
-│   ├── useFirestore.ts            # Firestore hooks
-│   ├── firebase-functions.ts      # Cloud Functions wrappers
-│   └── firebase-storage.ts        # Storage utilities
-├── app/
-│   ├── login/page.tsx              # Login example
-│   ├── signup/page.tsx             # Signup example
-│   ├── dashboard-example/page.tsx   # Dashboard example
-│   ├── roof-detection-example/page.tsx # Roof analysis
-│   └── solar-estimation-example/page.tsx # Solar forecast
-└── .env.local                      # Firebase credentials
-```
-
----
-
 ## Next Steps
 
 1. ✅ Install dependencies
@@ -256,6 +217,4 @@ frontend/
 3. ✅ Wrap app with AuthProvider
 4. ✅ Review example pages
 5. ✅ Test with emulators (optional)
-6. ✅ Deploy to Firebase Hosting
 
-See [FRONTEND_FIREBASE_INTEGRATION.md](FRONTEND_FIREBASE_INTEGRATION.md) for detailed documentation.
